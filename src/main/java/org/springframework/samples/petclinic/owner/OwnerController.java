@@ -15,6 +15,7 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import org.springframework.samples.petclinic.model.SearchForm;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,7 +29,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * @author Juergen Hoeller
@@ -41,11 +44,14 @@ class OwnerController {
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
+	private final SearchService searchService;
+
 	private final OwnerRepository owners;
 
 	private VisitRepository visits;
 
-	public OwnerController(OwnerRepository clinicService, VisitRepository visits) {
+	public OwnerController(SearchService searchService, OwnerRepository clinicService, VisitRepository visits) {
+		this.searchService = searchService;
 		this.owners = clinicService;
 		this.visits = visits;
 	}
@@ -75,28 +81,29 @@ class OwnerController {
 
 	@GetMapping("/owners/find")
 	public String initFindForm(Map<String, Object> model) {
-		model.put("owner", new Owner());
+		model.put("searchForm", new SearchForm());
 		return "owners/findOwners";
 	}
 
 	@GetMapping("/owners")
-	public String processFindForm(Owner owner, BindingResult result, Map<String, Object> model) {
+	public String processFindForm(SearchForm searchForm, BindingResult result, Map<String, Object> model) {
 
 		// allow parameterless GET request for /owners to return all records
-		if (owner.getLastName() == null) {
-			owner.setLastName(""); // empty string signifies broadest possible search
+		if (searchForm.getQuery() == null) {
+			searchForm.setQuery("*");
 		}
 
+		Collection<Integer> ownerIds = searchService.search(searchForm.getQuery());
 		// find owners by last name
-		Collection<Owner> results = this.owners.findByLastName(owner.getLastName());
+		Collection<Owner> results = this.owners.findByIds(ownerIds);
 		if (results.isEmpty()) {
 			// no owners found
-			result.rejectValue("lastName", "notFound", "not found");
+			result.rejectValue("query", "notFound", "not found");
 			return "owners/findOwners";
 		}
 		else if (results.size() == 1) {
 			// 1 owner found
-			owner = results.iterator().next();
+			Owner owner = results.iterator().next();
 			return "redirect:/owners/" + owner.getId();
 		}
 		else {

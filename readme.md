@@ -1,5 +1,8 @@
 # Spring PetClinic Sample Application [![Build Status](https://travis-ci.org/spring-projects/spring-petclinic.png?branch=main)](https://travis-ci.org/spring-projects/spring-petclinic/)
 
+Modified for [Enabling Full-text Search with Change Data Capture in a Legacy Application](https://jet-start.sh/blog/2020/10/06/enabling-full-text-search)
+blog post.
+
 ## Understanding the Spring Petclinic application with a few diagrams
 <a href="https://speakerdeck.com/michaelisvy/spring-petclinic-sample-application">See the presentation here</a>
 

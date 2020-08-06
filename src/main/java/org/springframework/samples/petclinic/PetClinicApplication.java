@@ -16,8 +16,12 @@
 
 package org.springframework.samples.petclinic;
 
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 /**
  * PetClinic Spring Boot Application.
@@ -30,6 +34,11 @@ public class PetClinicApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PetClinicApplication.class, args);
+	}
+
+	@Bean
+	public RestHighLevelClient restHighLevelClient() {
+		return new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200)));
 	}
 
 }
